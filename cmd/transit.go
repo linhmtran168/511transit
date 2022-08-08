@@ -10,7 +10,9 @@ import (
 
 	"github.com/go-chi/httplog"
 	"github.com/joho/godotenv"
+	"github.com/linhmtran168/511transit/internal/data/memory"
 	"github.com/linhmtran168/511transit/internal/handler"
+	transitapi "github.com/linhmtran168/511transit/internal/transit-api"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -26,7 +28,9 @@ func main() {
 
 	addr := os.Getenv("SERVER_ADDR")
 	httpLogger := httplog.NewLogger(os.Getenv("APP_NAME"), httplogOptions)
-	appHandler := handler.NewAppHandler(httpLogger)
+	apiClient := transitapi.NewTransitAPI()
+	repository := memory.NewMemoryRepository(apiClient)
+	appHandler := handler.NewAppHandler(httpLogger, repository)
 	server := &http.Server{
 		Addr:    addr,
 		Handler: appHandler,
@@ -48,26 +52,11 @@ func main() {
 	<-signalChan
 	log.Info().Msg("os.Interrupt - Shutting Down")
 
-	// feed := gtfs.FeedMessage{}
-	// err = proto.Unmarshal(body, &feed)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// for _, entity := range feed.Entity {
-	// 	fmt.Printf("%+v\n", entity)
-	// 	fmt.Printf("%+v\n", entity.TripUpdate.Vehicle)
-	// 	// tripUpdate := entity.TripUpdate
-	// 	// trip := tripUpdate.Trip
-	// 	// tripId := trip.TripId
-	// 	// fmt.Printf("Trip ID: %s\n", *tripId)
-	// }
 }
 
 func initConfiguration(httplogOptions *httplog.Options) {
-	env := os.Getenv("ENV")
 	// Local env
-	if env == "" {
+	if os.Getenv("ENV") == "" {
 		// Setting httplog options also update global zerelog options, so we only need to override httplog options
 		*httplogOptions = httplog.Options{JSON: false}
 		err := godotenv.Load(".env.local")

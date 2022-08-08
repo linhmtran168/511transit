@@ -2,6 +2,21 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
 import HelloWorld from './components/HelloWorld.vue'
+console.log(import.meta.env.DEV)
+const connection = new WebSocket("ws://localhost:5050/ws", ['realtime-transit'])
+
+connection.onmessage = function(event) {
+  console.log(event);
+}
+
+connection.onopen = function(event) {
+  console.log(event)
+  console.log("Successfully connected to the echo websocket server...")
+  connection.send(JSON.stringify({
+    requestType: "operators"
+  }))
+}
+
 </script>
 
 <template>
