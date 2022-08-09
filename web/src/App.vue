@@ -1,46 +1,25 @@
 <script setup lang="ts">
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-import HelloWorld from './components/HelloWorld.vue'
-console.log(import.meta.env.DEV)
-const connection = new WebSocket("ws://localhost:5050/ws", ['realtime-transit'])
+import useWebSocketEvent from './composables/useWebSocketEvent'
+import OperatorSelectBox from './components/OperatorSelectBox.vue'
+import TripUpdateList from './components/TripUpdateList.vue'
 
-connection.onmessage = function(event) {
-  console.log(event);
-}
-
-connection.onopen = function(event) {
-  console.log(event)
-  console.log("Successfully connected to the echo websocket server...")
-  connection.send(JSON.stringify({
-    requestType: "operators"
-  }))
-}
-
+useWebSocketEvent()
 </script>
 
 <template>
   <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+    <div class="container mx-auto">
+      <div class="flex flex-col">
+        <div class="prose prose-xl mt-64 mx-auto">
+          <h1 class="text-primary">511 SF Bay's Transit Update</h1>
+        </div>
+        <div class="w-[40%] mx-auto mt-10">
+          <OperatorSelectBox />
+        </div>
+        <div class="w-[40%] mx-auto mt-10">
+          <TripUpdateList />
+        </div>
+      </div>
+    </div>
   </div>
-  <HelloWorld msg="Vite + Vue" />
 </template>
-
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
-</style>

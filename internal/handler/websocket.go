@@ -83,13 +83,15 @@ func (h *WebSocketHandler) processMessage(ctx context.Context, conn *websocket.C
 			return err
 		}
 	case "tripUpdates":
-		operatorID, _ := params.Data["operatorId"]
-		tripUpdate, err := h.repository.GetTripUpdates(fmt.Sprintf("%s", operatorID))
+		operatorID, _ := params.Data["operatorId"].(string)
+		tripUpdates, err := h.repository.GetTripUpdates(fmt.Sprintf("%s", operatorID))
 		if err != nil {
 			return err
 		}
 
-		err = wsjson.Write(ctx, conn, models.TripUpdatesResponse{ResponseType: params.RequestType, Data: tripUpdate})
+		tripUpdateData := models.TripUpdateData{OperatorID: operatorID, TripUpdates: tripUpdates}
+		response := models.TripUpdatesResponse{ResponseType: params.RequestType, Data: tripUpdateData}
+		err = wsjson.Write(ctx, conn, response)
 		if err != nil {
 			return err
 		}

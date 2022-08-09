@@ -33,7 +33,7 @@ func (p *MemoryRepository) GetOperators() ([]*models.Operator, error) {
 	p.operatorStore.lock.Lock()
 	defer p.operatorStore.lock.Unlock()
 	if cachedOperators, ok := p.operatorStore.getCache(false); ok {
-		log.Info().Msg("Cache exists, use data from cache")
+		log.Info().Msg("Operators cache exists, use data from cache")
 		return cachedOperators, nil
 	}
 
@@ -62,7 +62,7 @@ func (p *MemoryRepository) GetTripUpdates(operatorID string) ([]*gtfs.FeedEntity
 		return []*gtfs.FeedEntity{}, nil
 	}
 	if cachedTrips, ok := p.tripStore.getCache(operatorID, false); ok {
-		log.Info().Msg("Cache exists, use data from cache")
+		log.Info().Msg("Trip update cache exists, use data from cache")
 		return cachedTrips, nil
 	}
 	response, err := p.apiClient.GetTripUpdates(operatorID)

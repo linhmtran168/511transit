@@ -10,6 +10,12 @@ type OperatorsResponse struct {
 }
 
 type TripUpdatesResponse struct {
-	ResponseType string             `json:"responseType"`
-	Data         []*gtfs.FeedEntity `json:"data"`
+	OperatorID   string         `json:"operatorId"`
+	ResponseType string         `json:"responseType"`
+	Data         TripUpdateData `json:"data"`
+}
+
+type TripUpdateData struct {
+	OperatorID  string             `json:"operatorId"`
+	TripUpdates []*gtfs.FeedEntity `json:"tripUpdates"`
 }
