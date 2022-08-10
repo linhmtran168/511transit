@@ -2,7 +2,11 @@ let connection: WebSocket
 
 function initConnection() {
   if (!connection || connection.readyState === WebSocket.CLOSED) {
-    connection = new WebSocket("ws://localhost:5050/ws", ['realtime-transit'])
+    let host = `ws://${window.location.host}/ws`
+    if (import.meta.env.DEV) {
+      host = import.meta.env.VITE_LOCAL_WS_HOST
+    }
+    connection = new WebSocket(host, ['realtime-transit'])
   }
 
   return connection

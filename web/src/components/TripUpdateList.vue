@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { useStore } from '../store'
 import { storeToRefs } from 'pinia'
-import TripUpdate from './TripUpdate.vue';
+import TripUpdate from './TripUpdateElement.vue';
 
 const store = useStore()
-const { tripUpdates, isWaitingTripUpdates } = storeToRefs(store)
+const { tripUpdates, isWaitingTripUpdates, selectedOperator } = storeToRefs(store)
+const intervalRateSeconds = import.meta.env.VITE_TRIP_UPDATE_INTERVAL / 1000
+
 </script>
 <template>
   <div>
@@ -17,8 +19,16 @@ const { tripUpdates, isWaitingTripUpdates } = storeToRefs(store)
           <span class="sr-only">Loading...</span>
       </div>
     </div>
-    <div v-else>
-      <TripUpdate v-for="entry in tripUpdates" :key="entry.id" :trip-update="entry.tripUpdate"/>
+    <div v-else-if="selectedOperator">
+      <div v-if="tripUpdates.length > 0">
+        <div class="prose prose-m mx-auto text-center">
+          <p class="text-secondary-content">The result will be updated every {{ intervalRateSeconds }} seconds</p>
+        </div>
+        <TripUpdate v-for="entry in tripUpdates" :key="entry.id + '_' + entry.trip_update.timestamp" :trip-update="entry.trip_update"/>
+      </div>
+      <div v-else class="prose prose-m mx-auto text-center">
+        <h3 class="text-secondary-content">There is currently no trip update for this operator, will be updated in {{ intervalRateSeconds }} seconds</h3>
+      </div>
     </div>
   </div>
 </template>

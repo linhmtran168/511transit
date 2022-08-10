@@ -49,13 +49,13 @@ export type TripUpdatesData = {
 
 export type TripUpdateEntry = {
   id: string;
-  tripUpdate: TripUpdate;
+  trip_update: TripUpdate;
 }
 
 export type TripUpdate = {
   trip: Trip;
   vehicle: Vehicle;
-  stopTimeUpdate: StopTimeEntry[];
+  stop_time_update: StopTimeEntry[];
   timestamp: number;
 }
 
@@ -64,20 +64,20 @@ export type StopTime = { time: number; delay?: number; uncertainty?: number }
 export type StopTimeEntry = {
   arrival?: StopTime;
   departure?: StopTime;
-  scheduleRelationship?: number;
-  stopSequence: number;
-  stopId: string;
+  schedule_relation_ship?: number;
+  stop_sequence: number;
+  stop_id: string;
 }
 
 export type Trip = {
-  tripId: string;
-  routeId: string;
-  directionId: number;
-  scheduleRelationship?: number;
+  trip_id: string;
+  route_id: string;
+  direction_id: number;
+  schedule_relation_ship?: number;
 }
 
 export type Vehicle = {
   id: string;
   label: string;
-  licensePlate: string;
+  license_plate: string;
 }

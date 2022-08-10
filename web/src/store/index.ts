@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { MainStore, Operator, TripUpdatesData } from '../types/global'
 
-const state: MainStore = {
+const mainState: MainStore = {
   operators: [],
   tripUpdates: [],
   selectedOperator: null,
@@ -9,7 +9,7 @@ const state: MainStore = {
 }
 
 export const useStore = defineStore('main', {
-  state: () => state,
+  state: () => mainState,
   actions: {
     setOperators(operators: Operator[]) {
       this.operators = operators
@@ -20,7 +20,7 @@ export const useStore = defineStore('main', {
         return
       }
       if (data.tripUpdates) {
-        this.tripUpdates = data.tripUpdates    
+        this.tripUpdates = data.tripUpdates   
       } else {
         this.tripUpdates = []
       }
@@ -28,6 +28,7 @@ export const useStore = defineStore('main', {
     },
     clearTripUpdates() {
       this.tripUpdates = []
+      this.isWaitingTripUpdates = false
     },
     clearSelectedOperator() {
       this.selectedOperator = null
