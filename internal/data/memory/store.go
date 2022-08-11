@@ -9,30 +9,10 @@ import (
 	cmap "github.com/orcaman/concurrent-map/v2"
 )
 
-const OPERATORS_CACHE_TIMEOUT = time.Hour
-const TRIP_UPDATE_CACHE_TIMEOUT = time.Minute
-
 type operatorsData struct {
 	lastUpdated time.Time
 	operators   []*models.Operator
 	lock        sync.Mutex
-}
-
-func (store *operatorsData) getCache(isExtended bool) ([]*models.Operator, bool) {
-	timeout := OPERATORS_CACHE_TIMEOUT
-	if isExtended {
-		timeout = OPERATORS_CACHE_TIMEOUT * 5
-	}
-	if len(store.operators) > 0 && store.lastUpdated.Add(timeout).After(time.Now()) {
-		return store.operators, true
-	}
-
-	return nil, false
-}
-
-func (store *operatorsData) updateCache(operator []*models.Operator) {
-	store.operators = operator
-	store.lastUpdated = time.Now()
 }
 
 type tripUpdatesData struct {
@@ -45,7 +25,58 @@ type tripEntry struct {
 	trips       []*gtfs.FeedEntity
 }
 
-func (store *tripUpdatesData) getCache(operatorID string, isExtended bool) ([]*gtfs.FeedEntity, bool) {
+var (
+	// We only need one instance of memory cache for operators and trip updates
+	// in memory to share between multiple goroutines.
+	operatorsCache   *operatorsData
+	tripUpdatesCache *tripUpdatesData
+	operatorOnce     sync.Once
+	tripUpdatesOnce  sync.Once
+)
+
+func newOperatorsData() *operatorsData {
+	operatorOnce.Do(func() {
+		operatorsCache = &operatorsData{}
+	})
+	return operatorsCache
+}
+
+func (store *operatorsData) GetCache(isExtended bool) ([]*models.Operator, bool) {
+	timeout := OPERATORS_CACHE_TIMEOUT
+	if isExtended {
+		timeout = OPERATORS_CACHE_TIMEOUT * 5
+	}
+	if len(store.operators) > 0 && store.lastUpdated.Add(timeout).After(time.Now()) {
+		return store.operators, true
+	}
+
+	return nil, false
+}
+
+func (store *operatorsData) UpdateCache(operator []*models.Operator) {
+	store.operators = operator
+	store.lastUpdated = time.Now()
+}
+
+func (store *operatorsData) Lock() {
+	store.lock.Lock()
+}
+
+func (store *operatorsData) Unlock() {
+	store.lock.Unlock()
+}
+
+func newTripUpdatesData() *tripUpdatesData {
+	tripUpdatesOnce.Do(func() {
+		tripUpdatesCache = &tripUpdatesData{
+			tripMap: cmap.New[*tripEntry](),
+		}
+	})
+
+	return tripUpdatesCache
+}
+
+func (store *tripUpdatesData) GetCache(operatorID string, isExtended bool) ([]*gtfs.FeedEntity, bool) {
 	if operatorID == "" {
 		return nil, false
 	}
@@ -61,7 +92,7 @@ func (store *tripUpdatesData) getCache(operatorID string, isExtended bool) ([]*g
 	return nil, false
 }
 
-func (store *tripUpdatesData) updateCache(operatorID string, trips []*gtfs.FeedEntity) {
+func (store *tripUpdatesData) UpdateCache(operatorID string, trips []*gtfs.FeedEntity) {
 	entry := &tripEntry{
 		lastUpdated: time.Now(),
 		trips:       trips,

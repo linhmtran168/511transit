@@ -55,21 +55,21 @@ func main() {
 }
 
 func initConfiguration(httplogOptions *httplog.Options) {
-	// Local env
-	if os.Getenv("ENV") == "" {
-		// Setting httplog options also update global zerelog options, so we only need to override httplog options
-		*httplogOptions = httplog.Options{JSON: false}
-		err := godotenv.Load(".env.local")
-		if err != nil {
-			log.Fatal().Err(err).Msg("Error loading local .env file")
-		}
+	// Load local setting
+	err := godotenv.Load(".env.local")
+	if err != nil {
+		log.Warn().Err(err).Msg("There is no local .env file")
 	}
 	// Load base configuration
-	err := godotenv.Load()
+	err = godotenv.Load()
 	if err != nil {
 		log.Fatal().Err(err).Msg("Error loading base .env file")
 	}
-
+	// Local env
+	if os.Getenv("ENV") != "prod" {
+		// Setting httplog options also update global zerelog options, so we only need to override httplog options
+		*httplogOptions = httplog.Options{JSON: false}
+	}
 }
 
 func gracefulShutdown(server *http.Server) {

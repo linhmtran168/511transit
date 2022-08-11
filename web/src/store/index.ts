@@ -35,6 +35,9 @@ export const useStore = defineStore('main', {
     },
     waitForTripUpdates() {
       this.isWaitingTripUpdates = true
+    },
+    clearWaitingState() {
+      this.isWaitingTripUpdates = false
     }
   }
 })

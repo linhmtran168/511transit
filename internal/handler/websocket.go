@@ -2,13 +2,14 @@ package handler
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/go-chi/httplog"
 	"github.com/linhmtran168/511transit/internal/data"
 	"github.com/linhmtran168/511transit/internal/models"
+	"github.com/rs/zerolog"
 	"nhooyr.io/websocket"
 	"nhooyr.io/websocket/wsjson"
 )
@@ -23,8 +24,8 @@ func NewWebSocketHandler(repository data.DataRepository) *WebSocketHandler {
 		Subprotocols: []string{"realtime-transit"},
 	}
 
-	// If local, add cross origin settings
-	if os.Getenv("ENV") == "" {
+	// If not production, add cross origin settings
+	if os.Getenv("ENV") != "prod" {
 		acceptOptions.OriginPatterns = []string{"localhost*", "127.0.0.1*"}
 	}
 
@@ -51,7 +52,7 @@ func (h *WebSocketHandler) ConnectHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	for {
-		err := h.processMessage(r.Context(), conn)
+		err := h.processMessage(r.Context(), conn, httpLogger)
 		if websocket.CloseStatus(err) == websocket.StatusNormalClosure ||
 			websocket.CloseStatus(err) == websocket.StatusGoingAway {
 			return
@@ -64,7 +65,11 @@ func (h *WebSocketHandler) ConnectHandler(w http.ResponseWriter, r *http.Request
 	}
 }
 
-func (h *WebSocketHandler) processMessage(ctx context.Context, conn *websocket.Conn) error {
+func (h *WebSocketHandler) processMessage(ctx context.Context, conn *websocket.Conn, httpLogger zerolog.Logger) error {
+	// Keep the connection alive until the limit context of 30 minutes
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Minute)
+	defer cancel()
+
 	var params models.RequestInput
 	err := wsjson.Read(ctx, conn, &params)
 	if err != nil {
@@ -84,7 +89,7 @@ func (h *WebSocketHandler) processMessage(ctx context.Context, conn *websocket.C
 		}
 	case "tripUpdates":
 		operatorID, _ := params.Data["operatorId"].(string)
-		tripUpdates, err := h.repository.GetTripUpdates(fmt.Sprintf("%s", operatorID))
+		tripUpdates, err := h.repository.GetTripUpdates(operatorID)
 		if err != nil {
 			return err
 		}
@@ -96,7 +101,7 @@ func (h *WebSocketHandler) processMessage(ctx context.Context, conn *websocket.C
 			return err
 		}
 	default:
-		return fmt.Errorf("unknown request type: %s", params.RequestType)
+		httpLogger.Warn().Msgf("unknown request type received: %s", params.RequestType)
 	}
 
 	return nil

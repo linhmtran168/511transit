@@ -37,8 +37,6 @@ COPY --from=go_builder /app/bin/ /app
 COPY --from=go_builder /app/.env /app
 COPY --from=asset_builder /workspace/web/dist /app/web/dist
 
-EXPOSE 80
 WORKDIR /app
-ENV ENV production
 
 CMD [ "./transit" ]

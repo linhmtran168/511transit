@@ -20,8 +20,8 @@ func NewAppHandler(logger zerolog.Logger, repository data.DataRepository) http.H
 	r.Use(middleware.Compress(5))
 	r.Use(middleware.Heartbeat("/ping"))
 
-	// If other environment besides local, serve static files from dist folder
-	if os.Getenv("ENV") != "" {
+	// If production like environment, serve static files from dist folder
+	if os.Getenv("ENV") == "prod" {
 		workDir, _ := os.Getwd()
 		filesDir := filepath.Join(workDir, "web/dist")
 		StaticServe(r, "/", filesDir)
