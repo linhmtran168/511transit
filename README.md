@@ -68,12 +68,31 @@ Demo: [https://511transit.fly.dev/](https://511transit.fly.dev/)
 - `/` route is the root route that served Frontend compiled file from `./web/dist` folder.
   - This route is available only in `production` mode. In `development` mode, the static files are served by Vite dev server
 - `/ws` route provide a WebSocket server that response to request messages and return data from 511 Transit API in accordance with the request type. The format of the request and response messages are as below:
-  - `{ "requestType": "operators"}`
+  - Operators:
+    - Request:
+
+      ```json
+      { "requestType": "operators"}`
+      ````
+
     - Response
-      - `{"responseType":"operators","data":[{"id":"<id>","name":"<name>"}, ..]}`
-  - `{ "requestType": "tripUpdates", "operatorIds": "<operatorIds>"}`
+
+      ```json
+      {"responseType":"operators","data":[{"id":"<id>","name":"<name>"}, ..]}
+      ````
+
+  - Trip Updates:
+    - Request:
+
+      ```json
+      { "requestType": "tripUpdates", "operatorIds": "<operatorIds>"}
+      ```
+
     - Response:
-      - `{"responseType":"tripUpdates","data": { "operatorId": "<id>", "tripUpdates": [...]}`
+
+      ```json
+      { "responseType":"tripUpdates","data": { "operatorId": "<id>", "tripUpdates": [...] }}
+      ```
 
 - The Backend requests 511 Transit API to get the data. Because 511 Transit API has a rate limit and to provide better response time, the data from the API is cached in memory.
   - Operators data: 1 hours
@@ -82,7 +101,7 @@ Demo: [https://511transit.fly.dev/](https://511transit.fly.dev/)
 ### Frontend
 
 - A SPA app built with Vite and Vue 3.x, communicate with the backend using WebSocket
-  - Automatically reconnect after connection lost
+  - The connection is automatically reconnected after connection lost
 - In local env, the frontend is served by Vite dev server, default run on port `:5173`
 - In production, the frontend codes is compiled to `web/dist` folder and served by the static server provided by the backend
   - Run `make front-build` to execute this process
@@ -121,6 +140,6 @@ Demo: [https://511transit.fly.dev/](https://511transit.fly.dev/)
 
 - [ ] Add more tests
   - [ ] Frontend
-  - [ ]Integration tests for backend
+  - [ ] Integration tests for backend
 - [ ] `Ping pong` check between the frontend and backend to check the status of websocket connection and keep it alive
 - [ ] Add option to use better in-memory DB to hold the cache data (like Redis) instead of using Go lang objects right now
