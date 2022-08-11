@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/go-chi/httplog"
@@ -37,6 +38,12 @@ func NewWebSocketHandler(repository data.DataRepository) *WebSocketHandler {
 
 func (h *WebSocketHandler) ConnectHandler(w http.ResponseWriter, r *http.Request) {
 	httpLogger := httplog.LogEntry(r.Context())
+	// https://github.com/nhooyr/websocket/issues/218
+	// https://github.com/gorilla/websocket/issues/731
+	// Safari doesn't support Compression yet...
+	if strings.Contains(r.UserAgent(), "Safari") {
+		h.acceptOptions.CompressionMode = websocket.CompressionDisabled
+	}
 	conn, err := websocket.Accept(w, r, h.acceptOptions)
 
 	if err != nil {
