@@ -10,7 +10,7 @@
   "dependencies": {
     "@vueform/multiselect": "^2.5.2",
     "date-fns": "^2.29.1",
-    "pinia": "^2.0.17",
+    "pinia": "2.0.23",
     "vue": "^3.2.37"
   },
   "devDependencies": {
