@@ -7,7 +7,7 @@ require (
 	github.com/go-chi/httplog v0.2.5
 	github.com/golang/mock v1.6.0
 	github.com/joho/godotenv v1.4.0
-	github.com/orcaman/concurrent-map/v2 v2.0.0
+	github.com/orcaman/concurrent-map/v2 v2.0.1
 	github.com/rs/zerolog v1.27.0
 	google.golang.org/protobuf v1.28.1
 	nhooyr.io/websocket v1.8.7
