@@ -1,5 +1,5 @@
 # Go
-FROM golang:1.19-alpine as go_builder
+FROM golang:1.22-alpine as go_builder
 
 RUN apk update \ 
   && apk upgrade \
