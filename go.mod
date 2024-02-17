@@ -3,7 +3,7 @@ module github.com/linhmtran168/511transit
 go 1.18
 
 require (
-	github.com/go-chi/chi/v5 v5.0.7
+	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-chi/httplog v0.2.5
 	github.com/golang/mock v1.6.0
 	github.com/joho/godotenv v1.4.0
