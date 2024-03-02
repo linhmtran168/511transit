@@ -10,7 +10,7 @@ require (
 	github.com/orcaman/concurrent-map/v2 v2.0.0
 	github.com/rs/zerolog v1.27.0
 	google.golang.org/protobuf v1.28.1
-	nhooyr.io/websocket v1.8.7
+	nhooyr.io/websocket v1.8.10
 )
 
 require (
